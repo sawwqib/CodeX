@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>CodeX</title>
+  <link rel="icon" href="icon.ico" sizes="any">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/lib/codemirror.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/theme/material-darker.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <nav class="activity" aria-label="Activity bar">
+      <button class="brand-mark" title="CodeX" aria-label="CodeX"><img src="logo.png" alt="CodeX"></button>
+      <div class="activity-separator"></div>
+      <button class="activity-button selected" data-activity="explorer" title="Explorer" aria-label="Explorer">
+        <svg viewBox="0 0 24 24"><path d="M4 5.5h6l2 2h8v11H4z"/><path d="M4 8h16"/></svg>
+      </button>
+      <button class="activity-button" data-activity="search" title="Search" aria-label="Search">
+        <svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.2"/><path d="m15.5 15.5 4.2 4.2"/></svg>
+      </button>
+      <button class="activity-button" data-activity="ai" title="Toggle CodeX AI" aria-label="Toggle CodeX AI">
+        <svg viewBox="0 0 24 24"><path d="M12 3.2 14 9.8l6.8 2.1-6.8 2.1-2 6.8-2.1-6.8L3.2 12l6.7-2.1z"/><path d="m18.5 3 .7 2.1 2.1.7-2.1.7-.7 2.1-.7-2.1-2.1-.7 2.1-.7z"/></svg>
+      </button>
+      <button class="activity-button" data-activity="terminal" title="Toggle terminal" aria-label="Toggle terminal">
+        <svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="m7 9 3 3-3 3m6 0h4"/></svg>
+      </button>
+      <div class="activity-spacer"></div>
+      <button class="activity-button activity-bottom" id="open-project" title="Open project folder" aria-label="Open project folder">
+        <svg viewBox="0 0 24 24"><path d="M3.5 7.5h6l2 2h9v9.5h-17z"/><path d="M12 12v5m-2.5-2.5h5"/></svg>
+      </button>
+    </nav>
+
+    <aside class="sidebar" id="sidebar">
+      <section class="side-view" id="explorer-view">
+        <header class="side-heading">
+          <span>EXPLORER</span>
+          <div class="icon-actions">
+            <button class="icon-button" id="new-file" title="New file" aria-label="New file">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+            <button class="icon-button" id="refresh-files" title="Refresh files" aria-label="Refresh files">
+              <svg viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 9a6.5 6.5 0 0 1 11-2L20 12M4 12l2.9 5a6.5 6.5 0 0 0 11-2"/></svg>
+            </button>
+          </div>
+        </header>
+        <button class="project-root" id="project-root" title="Current project">
+          <svg viewBox="0 0 24 24"><path d="m5 8 2-3h5l2 3h5v11H5z"/><path d="M5 8h14"/></svg>
+          <span id="project-name">PROJECT</span>
+          <svg class="root-caret" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg>
+        </button>
+        <div class="tree" id="file-tree" role="tree"></div>
+      </section>
+      <section class="side-view search-view hidden" id="search-view">
+        <header class="side-heading"><span>SEARCH</span></header>
+        <div class="search-box">
+          <input id="search-input" type="search" placeholder="Search in files" autocomplete="off">
+          <button class="icon-button" id="search-submit" title="Search" aria-label="Search">
+            <svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.2"/><path d="m15.5 15.5 4.2 4.2"/></svg>
+          </button>
+        </div>
+        <div class="search-results" id="search-results"></div>
+      </section>
+    </aside>
+
+    <main class="workbench">
+      <div class="editor-toolbar">
+        <div class="tabs" id="tabs"></div>
+        <div class="toolbar-actions">
+          <button class="toolbar-button" id="preview-button" title="Preview current HTML file (F6)">
+            <svg viewBox="0 0 24 24"><path d="M2.5 12s3.2-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.2 6.5-9.5 6.5S2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.6"/></svg>
+            <span>Preview</span>
+          </button>
+          <button class="toolbar-button save-button" id="save-button" title="Save (Ctrl+S)">
+            <svg viewBox="0 0 24 24"><path d="M5 3.5h12l3 3V20H4V4.5z"/><path d="M8 3.5v6h8v-6M8 20v-6h8v6"/></svg>
+            <span>Save</span>
+          </button>
+        </div>
+      </div>
+
+      <section class="editor-area" id="editor-area">
+        <div class="welcome" id="welcome">
+          <img src="logo.png" alt="CodeX logo" class="welcome-logo">
+          <p class="welcome-hint">Open a file to start building</p>
+          <div class="welcome-shortcuts">
+            <button data-command="new"><kbd>Ctrl</kbd><kbd>N</kbd><span>New file</span></button>
+            <button data-command="open"><kbd>Ctrl</kbd><kbd>O</kbd><span>Open file</span></button>
+            <button data-command="search"><kbd>Ctrl</kbd><kbd>F</kbd><span>Find in project</span></button>
+          </div>
+        </div>
+        <div class="editor hidden" id="editor">
+          <div class="breadcrumbs" id="breadcrumbs"></div>
+          <div class="source-wrap">
+            <div class="line-numbers" id="line-numbers" aria-hidden="true"></div>
+            <div class="code-surface">
+              <pre id="highlight-layer" aria-hidden="true"><code id="highlight"></code></pre>
+              <textarea id="source" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Code editor"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="preview hidden" id="preview">
+          <div class="preview-bar">
+            <div class="preview-address"><span class="live-dot"></span><span id="preview-url">localhost</span></div>
+            <button class="toolbar-button" id="preview-browser">
+              <svg viewBox="0 0 24 24"><path d="M14 4h6v6m0-6-9 9"/><path d="M18 13v5.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H11"/></svg>
+              <span>Open in browser</span>
+            </button>
+            <button class="icon-button" id="preview-refresh" title="Reload preview" aria-label="Reload preview">
+              <svg viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 9a6.5 6.5 0 0 1 11-2L20 12M4 12l2.9 5a6.5 6.5 0 0 0 11-2"/></svg>
+            </button>
+          </div>
+          <iframe id="preview-frame" title="Live HTML preview"></iframe>
+        </div>
+      </section>
+
+      <section class="terminal hidden" id="terminal">
+        <header class="terminal-heading">
+          <div class="terminal-tabs"><button class="terminal-tab active">TERMINAL</button></div>
+          <button class="icon-button" id="clear-terminal" title="Clear terminal" aria-label="Clear terminal">
+            <svg viewBox="0 0 24 24"><path d="M5 7h14M9 7V4h6v3m-8 0 1 13h8l1-13"/></svg>
+          </button>
+          <button class="icon-button" id="close-terminal" title="Close terminal" aria-label="Close terminal">
+            <svg viewBox="0 0 24 24"><path d="m6 6 12 12m0-12L6 18"/></svg>
+          </button>
+        </header>
+        <div class="terminal-output" id="terminal-output"><div class="terminal-welcome">PowerShell · commands run from the current project folder</div></div>
+        <form class="terminal-input-row" id="terminal-form">
+          <span class="terminal-prompt">›</span>
+          <input id="terminal-input" autocomplete="off" spellcheck="false" placeholder="Type a command…">
+        </form>
+      </section>
+
+      <footer class="statusbar">
+        <div class="status-left"><span class="status-dot"></span><span id="status-message">Ready</span></div>
+        <div class="status-right"><span id="status-language">Plain Text</span><span id="status-line">Ln 1, Col 1</span><span>UTF-8</span></div>
+      </footer>
+    </main>
+
+    <aside class="assistant" id="assistant">
+      <header class="assistant-heading">
+        <span>CODEX AI</span>
+        <div class="assistant-actions">
+          <button class="icon-button" id="clear-chat" title="New chat" aria-label="New chat">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <button class="icon-button" id="close-ai" title="Collapse AI panel" aria-label="Collapse AI panel">
+            <svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg>
+          </button>
+        </div>
+      </header>
+      <div class="ai-model-row">
+        <span class="ai-orb">✳</span>
+        <select id="ai-mode" aria-label="AI mode"><option>Chat</option><option>Agent</option></select>
+      </div>
+      <div class="chat-scroll" id="chat-scroll">
+        <div class="chat-empty" id="chat-empty"><img src="logo.png" alt=""><span>What are we building?</span><small>Ask about your code or use Agent to propose project changes.</small></div>
+        <div class="chat-messages" id="chat-messages"></div>
+      </div>
+      <form class="prompt-card" id="prompt-form">
+        <textarea id="prompt-input" rows="3" placeholder="Message CodeX…"></textarea>
+        <div class="prompt-footer">
+          <label class="context-toggle"><input type="checkbox" id="include-context" checked><span>Project context</span></label>
+          <button class="send-button" id="send-button" aria-label="Send message" title="Send">
+            <svg viewBox="0 0 24 24"><path d="m5 12 14-7-4.5 14-3-5zM11.5 14 19 5"/></svg>
+          </button>
+        </div>
+      </form>
+    </aside>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <div class="modal-backdrop hidden" id="agent-modal">
+    <section class="agent-modal" role="dialog" aria-modal="true" aria-labelledby="agent-title">
+      <header><div><span class="modal-kicker">AGENT REVIEW</span><h2 id="agent-title">Review proposed changes</h2></div><button class="icon-button" id="agent-close" aria-label="Close review"><svg viewBox="0 0 24 24"><path d="m6 6 12 12m0-12L6 18"/></svg></button></header>
+      <p id="agent-message"></p>
+      <div class="agent-changes" id="agent-changes"></div>
+      <footer><button class="quiet-button" id="agent-discard">Discard</button><button class="primary-button" id="agent-apply">Apply file changes</button></footer>
+    </section>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/lib/codemirror.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/mode/meta.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/mode/python/python.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/mode/javascript/javascript.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/mode/xml/xml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/mode/css/css.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/mode/htmlmixed/htmlmixed.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/addon/mode/simple.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/mode/yaml/yaml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/mode/sql/sql.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/mode/markdown/markdown.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/mode/shell/shell.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/mode/clike/clike.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/mode/go/go.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/mode/rust/rust.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/mode/php/php.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/mode/toml/toml.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
