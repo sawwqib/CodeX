@@ -114,7 +114,7 @@ python -m venv .venv
 ```bash
 pip install -r requirements.txt
 ```
-
+(Replace API_URL on line 25)
 ### 4. Run CodeX
 
 ```bash
