@@ -115,6 +115,7 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 (Replace API_URL on line 25)
+(How to make your own API_URL: <a href="https://t.me/sawwqibcodes/163">Click Here</a>)
 ### 4. Run CodeX
 
 ```bash
