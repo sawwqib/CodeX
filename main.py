@@ -121,7 +121,7 @@ class CodeXBridge:
     """Narrow Python API exposed to the local PyWebView frontend."""
 
     def __init__(self):
-        self.root = (Path.home() / "NovaProjects").resolve()
+        self.root = (Path.home() / "CodeX").resolve()
         self.root.mkdir(parents=True, exist_ok=True)
         self.window = None
         self.preview_server = None
