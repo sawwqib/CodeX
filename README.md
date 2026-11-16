@@ -18,6 +18,8 @@
 
 **CodeX** is a desktop code editor designed for developers who want a responsive, distraction-free environment paired with native AI coding capabilities. Built using a robust Python backend with **PyWebView (Qt / PySide6)** and a clean frontend powered by **CodeMirror**, CodeX delivers the speed of a native desktop application alongside modern development workflows.
 
+<img src="https://res.cloudinary.com/datfjlguq/image/upload/v1794768958/oxhwthvbkbkjwvftx1cv.png">
+
 ---
 
 ## ✨ Features
